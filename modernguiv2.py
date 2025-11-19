@@ -8,7 +8,7 @@ import matplotlib.pyplot as plt
 import time
 from report_generator import generate_report
 from tkinter import filedialog
-
+from system_checks import get_firewall_status, get_remote_access_status
 
 
 #quality of life 
@@ -41,6 +41,7 @@ left_frame= ctk.CTkFrame(app, corner_radius=10)
 left_frame.grid(row=3, column=0, sticky="nsew", padx=10, pady=10)
 left_frame.update_idletasks()
 left_frame.configure(width=440)
+left_frame.grid_propagate(False) #just added this one 
 
 #---  Title Port Scan Results ---
 port_results_label = ctk.CTkLabel(left_frame, text="Port Scan Results", font=ctk.CTkFont(size=24, weight="bold"))
@@ -62,12 +63,25 @@ for i, port in enumerate(port_to_scan, start=2):  # Start at row 2 instead of 1
 #--- Wi-Fi Security label ---
 wifi_security_var = ctk.StringVar(value="Wi-Fi Security: Unknown")
 wifi_security_label = ctk.CTkLabel(left_frame, textvariable=wifi_security_var, font=ctk.CTkFont(size=18))
-wifi_security_label.grid(row=len(port_to_scan)+2, column=0, sticky="w")
+wifi_security_label.grid(row=len(port_to_scan)+2, column=0, sticky="w", pady=(5,0))
+
+#--- Firewall Status Label ---
+firewall_status_var = ctk.StringVar(value="Firewall Status: Unknown")
+firewall_status_label = ctk.CTkLabel(left_frame, textvariable=firewall_status_var, font=ctk.CTkFont(size=18) )
+firewall_status_label.grid(row=len(port_to_scan)+3, column=0, sticky="w", pady=(0,0))
+
+#--- Remote Access Label ---
+remote_access_var = ctk.StringVar(value="Remote Access: Unknown")
+remote_access_label = ctk.CTkLabel(left_frame, textvariable=remote_access_var, font=ctk.CTkFont(size=18))
+remote_access_label.grid(row=len(port_to_scan)+4, column=0, sticky="w", pady=(0,0))
 
 #--- Password Strength label ---
 pwd_strength_var = ctk.StringVar(value="Password Strength: Unknown")
 pwd_strength_label = ctk.CTkLabel(left_frame, textvariable=pwd_strength_var, font=ctk.CTkFont(size=18))
-pwd_strength_label.grid(row=len(port_to_scan)+3, column=0, sticky="w")
+pwd_strength_label.grid(row=len(port_to_scan)+5, column=0, sticky="w", pady=(0,5))
+
+
+
 
 #---Run Scan Button Area---
 #-Run Scan Button function -
@@ -82,10 +96,12 @@ def run_scan():
     update_wifi_security()
     update_password()
     update_network_score()
+    update_firewall_status()
+    update_remote_access_status()
     scan_status_label.configure(text_color="green")  # final status green
 
 scan_btn = ctk.CTkButton(left_frame, text="Run Scan", command=run_scan)
-scan_btn.grid(row=len(port_to_scan)+4, column=0, pady=10)
+scan_btn.grid(row=len(port_to_scan)+6, column=0, pady=10)
 
 
 
@@ -242,6 +258,31 @@ def update_ssid():
 
 
 
+#firewall update
+def update_firewall_status():
+    status = get_firewall_status()
+    firewall_status_var.set(f"Firewall Status: {status}")
+    if status.lower() == "enabled":
+        firewall_status_label.configure(text_color="green")
+    elif status.lower() == "disabled":
+        firewall_status_label.configure(text_color="red")
+    else:
+        firewall_status_label.configure(text_color="yellow")
+
+#remote access update
+def update_remote_access_status():
+    status = get_remote_access_status()
+    remote_access_var.set(f"Remote Access: {status}")
+    if status.lower() == "enabled":
+        remote_access_label.configure(text_color="red")
+    elif status.lower() == "disabled":
+        remote_access_label.configure(text_color="green")
+    else:
+        remote_access_label.configure(text_color="yellow")
+
+
+
+
 
 
 
@@ -261,6 +302,8 @@ def generate_pdf_callback():
     score = int(score_var.get().replace("%",""))
     wifi_security = wifi_security_var.get().replace("Wi-Fi Security: ", "")
     password_strength = pwd_strength_var.get().replace("Password Strength: ","")
+    firewall_status = firewall_status_var.get().replace("Firewall Status: ", "") #added 11/10/25
+    remote_access_status = remote_access_var.get().replace("Remote Access: ", "") #added 11/10/25
 
     #build ports dict from lbls
     ports ={}
@@ -276,7 +319,10 @@ def generate_pdf_callback():
     if int(password_strength.replace("%","")) <80:
         notes.append("Your Wi-Fi password is weak. Recommendation: Add more unique characters, random capitalized letters, and numbers to enhance your password security. ")
 
-    generate_report(filename, network_name, score, wifi_security, password_strength, ports, notes)
+
+    firewall_status = firewall_status_var.get().replace("Firewall Status: ", "")
+    remote_access_status = remote_access_var.get().replace("Remote Access: ", "")
+    generate_report(filename, network_name, score, wifi_security, password_strength, ports, notes, firewall_status, remote_access_status)
 
 
 generate_button = ctk.CTkButton(right_frame, text="Generate PDF Report", command=generate_pdf_callback)

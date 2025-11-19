@@ -36,7 +36,7 @@ scan_progress = ctk.CTkProgressBar(app, width=600)
 scan_progress.grid(row=2, column=0, columnspan=2, pady=(0,10), sticky="ew")
 scan_progress.set(0)
 
-#left frame idividual porst status, 
+#left frame idividual port status, 
 left_frame= ctk.CTkFrame(app, corner_radius=10)
 left_frame.grid(row=3, column=0, sticky="nsew", padx=10, pady=10)
 left_frame.update_idletasks()
@@ -214,8 +214,9 @@ def update_network_score():
     progress_score.set(score/100)
 
 #ssid lbl
+#font was originally 14 
 ssid_var = ctk.StringVar(value="Connected SSID: Unknown")
-ssid_label = ctk.CTkLabel(left_frame, textvariable=ssid_var, font=ctk.CTkFont(size=14))
+ssid_label = ctk.CTkLabel(left_frame, textvariable=ssid_var, font=ctk.CTkFont(size=18))
 ssid_label.grid(row=len(port_to_scan)+3, column=0, sticky="w")
 
 #funtion..update..ssid
