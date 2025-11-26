@@ -30,7 +30,7 @@ def get_firewall_status():
         elif system == "Linux":
             # Tries ufw (Ubuntu) or firewalld (CentOS/Fedora)
             result = subprocess.run(
-                ["sudo", "ufw", "status"],
+                ["systemctl", "is-active", "ufw"],
                 capture_output=True, text=True
             )
             output = result.stdout.lower()

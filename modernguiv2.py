@@ -28,8 +28,8 @@ header.grid(row=0, column=0, columnspan=2, pady=20)
 scan_status_var = ctk.StringVar(value="Status: Idle")
 scan_status_label = ctk.CTkLabel(app, textvariable=scan_status_var, font=ctk.CTkFont(size=16))
 scan_status_label.grid(row=1, column=0, columnspan=2, pady=(0,5), sticky="ew")
-scan_status_var.set("Scan Complete")
-scan_status_label.configure(text_color="green")
+scan_status_var.set("Status: Idle")
+scan_status_label.configure(text_color="grey")
 
 #--- SCAN PROGRESS BAR ---
 scan_progress = ctk.CTkProgressBar(app, width=600)
